@@ -1,0 +1,211 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="GameStyleSheet.css">
+	<meta charset="utf-8" />
+</head>
+<body class="Body">
+    <div id="ToolStatsDiv" class="ToolStat">
+        <img src="images/Gold_Icon.png" alt="Gold" height="15" width="15" style="position: absolute; left: 30px; top: 8px;">
+        <span id="ToolGold"  style="position: absolute; left: 50px; top: 7px;"> 10 </span>
+        <img src="images/View_Icon.png" alt="Gold" height="15" width="15" style="position: absolute; left: 150px; top: 8px;">
+        <span id="ToolViews" style="position: absolute; left: 170px; top: 7px;"> </span>
+        <img src="images/Likes_Icon.png" alt="Gold" height="15" width="15" style="position: absolute; left: 270px; top: 8px;">
+        <span id="ToolLikes" style="position: absolute; left: 290px; top: 7px;"> 0 </span>
+        <img src="images/Subscripe_Icon.png" alt="Gold" height="15" width="15" style="position: absolute; left: 390px; top: 8px;">
+        <span id="ToolSubs" width="50px" style="position: absolute; left: 410px; top: 7px;"> 10 </span>
+        <img src="images/Gold_Icon.png" alt="Gold" height="15" width="15" style="position: absolute; left: 510px; top: 8px;">
+        <span id="ToolGoldPerSec" style="position: absolute; left: 530px; top: 7px;"> 10 </span>
+        <img src="images/View_Icon.png" alt="Gold" height="15" width="15" style="position: absolute; left: 630px; top: 8px;">
+        <span id="ToolViewsPerSec" style="position: absolute; left: 650px; top: 7px;"> </span>
+        <img src="images/Likes_Icon.png" alt="Gold" height="15" width="15" style="position: absolute; left: 750px; top: 8px;">
+        <span id="ToolLikesPerSec" style="position: absolute; left: 770px; top: 7px;"> 0 </span>
+        <img src="images/Subscripe_Icon.png" alt="Gold" height="15" width="15" style="position: absolute; left: 870px; top: 8px;">
+        <span id="ToolSubsPerSec" width="50px" style="position: absolute; left: 890px; top: 7px;"> 10 </span>
+
+    </div>
+    <div class="flex-container">  
+        <div class="TestVideoDiv" >
+            <button class="ButtonVideo" id="btnClothing" type="button" onclick="makeVideo(0)">
+                <span class="ButtonVideoTitle">Clothing Video </span> <span id="ClothingAmountText" class="ButtonVideoAmount"> 0</span>
+                <div>
+                    <img src="images/Gold_Icon.png" alt="Gold" height="14" width="14">
+                    <span id="Clothing Cost"> 10 </span>
+                </div>
+                <div>
+                    <span id="Clothing Per Sec">   </span>
+                </div>
+            </button>
+            <br />
+            <button class="ButtonVideo"  id="btnReview" type="button" onclick="makeVideo(1)">
+                <span class="ButtonVideoTitle">Review Video </span> <span id="ReviewAmountText" class="ButtonVideoAmount"> 0</span>
+                <div>
+                    <img src="images/Gold_Icon.png" alt="Gold" height="14" width="14"> 
+                    <span id="Review Cost"> 100 </span> 
+                </div>
+                <div>
+                    <span id="Review Per Sec">   </span>
+                </div>
+            </button>
+            <br />
+            <button class="ButtonVideo"  id="btnVBlogg" type="button" onclick="makeVideo(2)">
+                <span class="ButtonVideoTitle">VBlogg Video </span> <span id="VBloggAmountText" class="ButtonVideoAmount"> 0</span>
+                <div>
+                    <img src="images/Gold_Icon.png" alt="Gold" height="14" width="14"> 
+                    <span id="VBlogg Cost"> 1000 </span> 
+                </div>
+                <div>
+                    <span id="VBlogg Per Sec">   </span>
+                </div>
+            </button>
+
+        </div>
+
+        <div class="center" >
+            <span>Beg for views</span>
+            <br />
+            <button class="BegButton" onclick="begForView()">
+                <img src="images/Beg_Icon.png" height="200" width="270"/>
+            </button>
+        </div>
+
+        <div class="upgradePanel">
+            <button class="upgradeButton">
+                <img src="Images/T-shirt icon.png" class="upgradeIcon"/>
+            </button>
+        </div>
+
+    </div>   
+
+</body>
+</html>
+
+<script>
+
+    // ENDAST FÖR TESTING 
+    var multiplier = 100;
+
+    var gold = 10;
+    var views = 0;
+    var likes = 0;
+    var subscribers = 0;
+
+    var videos = [{ name: "Clothing Video", amount: 0, views: 2, likes: 0, subscribers: 0, cost: 10 },
+            { name: "Review Video", amount: 0, views: 10, likes: 1, subscribers: 0, cost: 100 },
+            { name: "VBlogging Video", amount: 0, views: 35, likes: 3, subscribers: 1, cost: 1000 }];
+
+    var videosPerSec = [{ gold: 0, views: 0, likes: 0, subscribers: 0 }, { gold: 0, views: 0, likes: 0, subscribers: 0 }, { gold: 0, views: 0, likes: 0, subscribers: 0 }]
+    
+
+    setInterval(function () { updateNumber() }, 100);
+
+    function updateNumber() {
+        checkEnoughFundsToBuyVid();
+        calculateAmountOfGoldPerTick();
+        document.getElementById("ToolGold").innerHTML = Number(gold).toPrecision(3) + "";
+        document.getElementById("ToolViews").innerHTML = Number(views).toPrecision(3) + "";
+        document.getElementById("ToolLikes").innerHTML = Number(likes).toPrecision(3) + "";
+        document.getElementById("ToolSubs").innerHTML = Number(subscribers).toPrecision(3) + "";
+
+    }
+
+    function makeVideo(index) {
+        gold -= videos[index].cost;    
+        videos[index].amount = videos[index].amount + 1;        
+        calculateNewCost(index);   
+        changeCostInButton(index);
+        changeButtonAmount(index);
+    }
+
+    function calculateAmountOfGoldPerTick() {
+        var tempViews = 0;
+        var tempLikes = 0;
+        var tempSubs = 0;
+        var tempGold = 0;
+
+        for (i = 0; i < videos.length; i++){
+            
+            videosPerSec[i].views = videos[i].amount * videos[i].views;
+            videosPerSec[i].likes = videos[i].amount * videos[i].likes;
+            videosPerSec[i].subscribers = videos[i].amount * videos[i].subscribers;
+            videosPerSec[i].gold = ((videosPerSec[i].views / 10) + (videosPerSec[i].likes / 2) + (videosPerSec[i].subscribers * 2)) * multiplier;
+
+            tempViews += videosPerSec[i].views;
+            tempLikes += videosPerSec[i].likes;
+            tempSubs += videosPerSec[i].subscribers;
+            tempGold += videosPerSec[i].gold;
+
+        }
+        updatePerSecInTool(tempGold, tempViews, tempLikes, tempSubs);
+        updatePerSecondInButtons(tempGold);
+
+        gold = gold + ((tempGold / 10));
+        views = views + (tempViews / 10);
+        likes = likes + (tempLikes / 10);
+        subscribers = subscribers + (tempSubs / 10);
+
+    }
+
+    function checkEnoughFundsToBuyVid() {
+        if (videos[0].cost > gold) {
+            document.getElementById("btnClothing").disabled = true;
+        } else {
+            document.getElementById("btnClothing").disabled = false;
+        }
+
+        if (videos[1].cost > gold) {
+            document.getElementById("btnReview").disabled = true;
+        } else {
+            document.getElementById("btnReview").disabled = false;
+        }
+
+        if (videos[2].cost > gold) {
+            document.getElementById("btnVBlogg").disabled = true;
+        } else {
+            document.getElementById("btnVBlogg").disabled = false;
+        }
+    }
+
+    function changeCostInButton(index) {
+        if (index == 0) {
+            document.getElementById("Clothing Cost").textContent = "   " + Number(videos[index].cost).toPrecision(3) + "";
+        }else if(index == 1){
+            document.getElementById("Review Cost").textContent = "   " + Number(videos[index].cost).toPrecision(3) + "";
+        }else if(index == 2){
+            document.getElementById("VBlogg Cost").textContent = "   " + Number(videos[index].cost).toPrecision(3) + "";
+        }
+    }
+
+    function calculateNewCost(index) {
+        videos[index].cost *= 1.15;
+    }
+
+    function changeButtonAmount(index){
+        if (index == 0) {
+            document.getElementById("ClothingAmountText").textContent = Number(videos[index].amount) + "";
+        } else if (index == 1) {
+            document.getElementById("ReviewAmountText").textContent = Number(videos[index].amount) + "";
+        } else if (index == 2) {
+            document.getElementById("VBloggAmountText").textContent = Number(videos[index].amount) + "";
+        }
+    }
+
+    function updatePerSecInTool(gold, views, likes, subs) {
+        document.getElementById("ToolGoldPerSec").innerHTML = Number(gold).toPrecision(3) + "/s";
+        document.getElementById("ToolViewsPerSec").innerHTML = Number(views).toPrecision(3) + "/s";
+        document.getElementById("ToolLikesPerSec").innerHTML = Number(likes).toPrecision(3) + "/s";
+        document.getElementById("ToolSubsPerSec").innerHTML = Number(subs).toPrecision(3) + "/s";
+    }
+
+    function updatePerSecondInButtons(totalGoldPerSec) {
+        document.getElementById("Clothing Per Sec").innerHTML = Number((videosPerSec[0].gold / totalGoldPerSec) * 100).toPrecision(3) + "%";
+        document.getElementById("Review Per Sec").innerHTML = Number((videosPerSec[1].gold / totalGoldPerSec) * 100).toPrecision(3) + "%";
+        document.getElementById("VBlogg Per Sec").innerHTML = Number((videosPerSec[2].gold / totalGoldPerSec) * 100).toPrecision(3) + "%";
+    }
+
+    function begForView() {
+        views++;
+        gold++;
+    }
+
+</script>
